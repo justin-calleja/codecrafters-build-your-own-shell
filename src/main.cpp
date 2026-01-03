@@ -24,6 +24,29 @@ std::string &trim(std::string &s)
   return ltrim(rtrim(s));
 }
 
+void handleEcho(std::string &command)
+{
+  std::string echoCommand = command.substr(4);
+  trim(echoCommand);
+  std::cout << echoCommand << std::endl;
+}
+
+void handleType(std::string &command)
+{
+
+  std::string typeCommand = command.substr(5);
+  trim(typeCommand);
+
+  if (typeCommand == "echo" || typeCommand == "exit" || typeCommand == "type")
+  {
+    std::cout << typeCommand << " is a shell builtin" << std::endl;
+  }
+  else
+  {
+    std::cout << typeCommand << ": not found" << std::endl;
+  }
+}
+
 int main()
 {
   // Flush after every std::cout / std:cerr
@@ -47,9 +70,13 @@ int main()
 
     if (command.rfind("echo ", 0) == 0)
     {
-      std::string echoCommand = command.substr(4);
-      trim(echoCommand);
-      std::cout << echoCommand << std::endl;
+      handleEcho(command);
+      continue;
+    }
+
+    if (command.rfind("type ", 0) == 0)
+    {
+      handleType(command);
       continue;
     }
 
