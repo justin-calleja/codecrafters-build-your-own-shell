@@ -60,14 +60,13 @@ void handleType(std::string &command)
         if (entry.is_regular_file())
         {
           std::string filename = entry.path().filename().string();
-          if (filename == typeCommand || entry.path().string() == typeCommand)
+          if (filename == typeCommand)
           {
             if (is_executable(entry.path()))
             {
               std::cout << filename << " is " << entry.path().string() << std::endl;
+              return;
             }
-
-            return;
           }
         }
       }
