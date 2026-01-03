@@ -2,6 +2,11 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <vector>
+#include <sstream>
+#include <filesystem>
+#include "utils/path-parser.h"
+#include "utils/is_executable.h"
 
 std::string &ltrim(std::string &s)
 {
@@ -33,18 +38,51 @@ void handleEcho(std::string &command)
 
 void handleType(std::string &command)
 {
-
   std::string typeCommand = command.substr(5);
   trim(typeCommand);
 
   if (typeCommand == "echo" || typeCommand == "exit" || typeCommand == "type")
   {
     std::cout << typeCommand << " is a shell builtin" << std::endl;
+    return;
   }
-  else
+
+  // read PATH env var
+  const char *paths = std::getenv("PATH");
+  std::vector<std::string> pathDirs = pathParser(paths);
+
+  for (const std::string &dir : pathDirs)
   {
-    std::cout << typeCommand << ": not found" << std::endl;
+    // NOTE: requires C++17
+    if (std::filesystem::exists(dir) && std::filesystem::is_directory(dir))
+    {
+      for (const auto &entry : std::filesystem::directory_iterator(dir))
+      {
+        if (entry.is_regular_file())
+        {
+          std::string filename = entry.path().filename().string();
+          if (filename == typeCommand || entry.path().string() == typeCommand)
+          {
+            if (is_executable(entry.path()))
+            {
+              std::cout << filename << " is " << entry.path().string() << std::endl;
+            }
+
+            return;
+          }
+        }
+      }
+    }
   }
+
+  // for each string in string[]
+  //   - check if dir exists
+  //   - if dir exists
+  //      - list contents of dir and try find typeCommand in contents
+  //      - if found
+  //         - check that file is also executable. If so - you can print and exit
+
+  std::cout << typeCommand << ": not found" << std::endl;
 }
 
 int main()
