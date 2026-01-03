@@ -13,6 +13,8 @@ bool is_executable(const std::filesystem::__cxx11::path &path)
     return true;
 #else
     auto perms = std::filesystem::status(path).permissions();
-    return (perms & std::filesystem::perms::owner_exec) != std::filesystem::perms::none;
+    return (perms & std::filesystem::perms::owner_exec) != std::filesystem::perms::none ||
+           (perms & std::filesystem::perms::group_exec) != std::filesystem::perms::none ||
+           (perms & std::filesystem::perms::others_exec) != std::filesystem::perms::none;
 #endif
 }

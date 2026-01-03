@@ -47,7 +47,6 @@ void handleType(std::string &command)
     return;
   }
 
-  // read PATH env var
   const char *paths = std::getenv("PATH");
   std::vector<std::string> pathDirs = pathParser(paths);
 
@@ -74,13 +73,6 @@ void handleType(std::string &command)
       }
     }
   }
-
-  // for each string in string[]
-  //   - check if dir exists
-  //   - if dir exists
-  //      - list contents of dir and try find typeCommand in contents
-  //      - if found
-  //         - check that file is also executable. If so - you can print and exit
 
   std::cout << typeCommand << ": not found" << std::endl;
 }
