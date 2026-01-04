@@ -1,33 +1,10 @@
 #include <iostream>
 #include <string>
-#include <algorithm>
-#include <cctype>
 #include <vector>
-#include <sstream>
 #include <filesystem>
-#include "utils/path-parser.h"
 #include "utils/is_executable.h"
-
-std::string &ltrim(std::string &s)
-{
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch)
-                                  { return !std::isspace(ch); }));
-  return s;
-}
-
-std::string &rtrim(std::string &s)
-{
-  s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch)
-                       { return !std::isspace(ch); })
-              .base(),
-          s.end());
-  return s;
-}
-
-std::string &trim(std::string &s)
-{
-  return ltrim(rtrim(s));
-}
+#include "utils/path-parser.h"
+#include "utils/trim.h"
 
 void handleEcho(std::string &command)
 {
@@ -76,21 +53,25 @@ void handleType(std::string &command)
   std::cout << typeCommand << ": not found" << std::endl;
 }
 
+std::string getCommand()
+{
+  std::string command;
+  std::getline(std::cin, command);
+  trim(command);
+  return command;
+}
+
 int main()
 {
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
   std::cerr << std::unitbuf;
 
-  bool isLoopEnabled = true;
-
-  while (isLoopEnabled)
+  while (true)
   {
     std::cout << "$ ";
 
-    std::string command;
-    std::getline(std::cin, command);
-    trim(command);
+    std::string command = getCommand();
 
     if (command == "exit")
     {
