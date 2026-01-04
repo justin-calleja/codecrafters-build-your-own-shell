@@ -30,23 +30,24 @@ void handleType(std::string &command)
   for (const std::string &dir : pathDirs)
   {
     // NOTE: requires C++17
-    if (std::filesystem::exists(dir) && std::filesystem::is_directory(dir))
+    if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir))
+      continue;
+
+    for (const auto &entry : std::filesystem::directory_iterator(dir))
     {
-      for (const auto &entry : std::filesystem::directory_iterator(dir))
-      {
-        if (entry.is_regular_file())
-        {
-          std::string filename = entry.path().filename().string();
-          if (filename == typeCommand)
-          {
-            if (is_executable(entry.path()))
-            {
-              std::cout << filename << " is " << entry.path().string() << std::endl;
-              return;
-            }
-          }
-        }
-      }
+      if (!entry.is_regular_file())
+        continue;
+
+      std::string filename = entry.path().filename().string();
+      if (filename != typeCommand)
+        continue;
+
+      if (!is_executable(entry.path()))
+        continue;
+
+      // Found it - handle happy path and return
+      std::cout << filename << " is " << entry.path().string() << std::endl;
+      return;
     }
   }
 
